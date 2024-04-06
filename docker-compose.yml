@@ -1,0 +1,9 @@
+version: '3.9'
+
+services:
+  user-service-dev:
+    container_name: user-service-develop
+    image: user-service-dev:1.0.0
+    build: .
+    ports:
+      - 8002:8002
