@@ -1,6 +1,5 @@
 export enum PORTAL {
   ADMIN = "ADMIN",
-  TRADING = "TRADING",
   DASHBOARD = "DASHBOARD",
 }
 

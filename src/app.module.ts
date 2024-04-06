@@ -2,9 +2,11 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
 import { AppService } from "@/app.service";
+import { UserModule } from "@/user/user.module";
 import { AppController } from "@/app.controller";
-import { validate } from "@/config/env.validation";
 import configuration from "@/config/configuration";
+import { validate } from "@/config/env.validation";
+import { PasswordModule } from "@/password/password.module";
 import { DatabaseModule } from "@/infra/mongoose/database.module";
 
 @Module({
@@ -17,6 +19,8 @@ import { DatabaseModule } from "@/infra/mongoose/database.module";
       validate,
     }),
     DatabaseModule,
+    UserModule,
+    PasswordModule,
   ],
   controllers: [AppController],
   providers: [AppService],

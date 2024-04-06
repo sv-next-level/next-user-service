@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
-import { PORTAL, USER_STATUS } from "@/constants";
+import { PORTAL } from "@/constants";
 import { USER_MODEL, User } from "@/schemas/user.schema";
 
 @Schema({
@@ -17,13 +17,6 @@ export class Password {
 
   @Prop({ type: String, required: true })
   password: string;
-
-  @Prop({
-    type: String,
-    enum: USER_STATUS,
-    default: USER_STATUS.ACTIVE,
-  })
-  status: USER_STATUS;
 
   @Prop({ type: String, enum: PORTAL, required: true })
   portal: PORTAL;
