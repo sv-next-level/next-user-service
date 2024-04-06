@@ -1,0 +1,12 @@
+export enum PORTAL {
+  ADMIN = "ADMIN",
+  TRADING = "TRADING",
+  DASHBOARD = "DASHBOARD",
+}
+
+export enum USER_STATUS {
+  ACTIVE = "ACTIVE",
+  DELETE = "DELETE",
+  SUSPEND = "SUSPEND",
+  DEACTIVATE = "DEACTIVATE",
+}

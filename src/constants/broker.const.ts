@@ -1,0 +1,10 @@
+export enum BROKER {
+  ANGEL_ONE = "ANGEL ONE",
+}
+
+export enum BROKER_STATUS {
+  ACTIVE = "ACTIVE",
+  DELETE = "DELETE",
+  SUSPEND = "SUSPEND",
+  DEACTIVATE = "DEACTIVATE",
+}
