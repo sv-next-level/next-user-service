@@ -2,8 +2,8 @@ import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { Injectable, Logger } from "@nestjs/common";
 
+import { USER_MODEL, userDocument } from "@/schemas";
 import { DATABASE_CONNECTION_NAME } from "@/constants";
-import { USER_MODEL, userDocument } from "@/schemas/user.schema";
 
 @Injectable()
 export class UserService {
@@ -17,38 +17,50 @@ export class UserService {
       message: "Entering constructor of user service",
     });
   }
-  async createNewUser(email: string, portal: string): Promise<string> {
+
+  async getUserById(userId: string): Promise<userDocument> {
     try {
       this.logger.debug({
-        message: "Entering createNewUseer",
-        newUserDto: email,
+        message: "Entering getUserById",
+        user_id: userId,
       });
 
-      const newUser = new this.userModel({
-        email: email,
-        portal: [portal],
-      });
-      await newUser.save();
+      const userByIdSelector = {
+        email: true,
+        portal: true,
+        status: true,
+      };
+      const user: userDocument = await this.userModel
+        .findById(userId)
+        .select(userByIdSelector);
+
+      if (!user) {
+        this.logger.warn({
+          message: "User not found",
+          id: userId,
+        });
+        return null;
+      }
 
       this.logger.log({
-        message: "user created",
-        user: newUser,
+        message: "User found",
+        user_id: user._id,
       });
 
-      return newUser._id;
+      return user;
     } catch (error) {
       this.logger.error({
-        message: "Error creating user",
-        portal: portal,
+        message: "Error getting user id",
+        user_id: userId,
         error: error,
       });
     }
   }
 
-  async getUserId(email: string, portal: string): Promise<string> {
+  async getUser(email: string, portal: string): Promise<userDocument> {
     try {
       this.logger.debug({
-        message: "Entering getUserId",
+        message: "Entering getUser",
         newUserDto: email,
       });
 
@@ -73,10 +85,37 @@ export class UserService {
         user_id: user._id,
       });
 
-      return user._id;
+      return user;
     } catch (error) {
       this.logger.error({
         message: "Error getting user id",
+        portal: portal,
+        error: error,
+      });
+    }
+  }
+
+  async setUser(email: string, portal: string): Promise<string> {
+    try {
+      this.logger.debug({
+        message: "Entering setUser",
+        newUserDto: email,
+      });
+
+      const newUser: userDocument = await this.userModel.create({
+        email: email,
+        portal: [portal],
+      });
+
+      this.logger.log({
+        message: "user created",
+        user: newUser,
+      });
+
+      return newUser._id;
+    } catch (error) {
+      this.logger.error({
+        message: "Error creating user",
         portal: portal,
         error: error,
       });

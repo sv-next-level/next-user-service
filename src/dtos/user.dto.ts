@@ -2,7 +2,7 @@ import { IsEmail, IsEnum, IsNotEmpty, IsString, Length } from "class-validator";
 
 import { PORTAL } from "@/constants";
 
-export class RegisterUserDTO {
+export class GetUserDTO {
   @IsEmail()
   readonly email: string;
 
@@ -17,7 +17,7 @@ export class RegisterUserDTO {
   readonly password: string;
 }
 
-export class LoginUserDTO {
+export class SetUserDTO {
   @IsEmail()
   readonly email: string;
 

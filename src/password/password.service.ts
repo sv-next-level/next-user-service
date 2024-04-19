@@ -1,8 +1,9 @@
-import { DATABASE_CONNECTION_NAME } from "@/constants";
-import { PASSWORD_MODEL, passwordDocument } from "@/schemas/password.schema";
-import { Injectable, Logger } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import { InjectModel } from "@nestjs/mongoose";
+import { Injectable, Logger } from "@nestjs/common";
+
+import { DATABASE_CONNECTION_NAME } from "@/constants";
+import { PASSWORD_MODEL, passwordDocument } from "@/schemas";
 
 @Injectable()
 export class PasswordService {
@@ -16,113 +17,69 @@ export class PasswordService {
       message: "Entering constructor of password service",
     });
   }
-  async setPassword(
-    userId: string,
-    portal: string,
-    password: string
-  ): Promise<string> {
+
+  async getPasswordByUserId(userId: string): Promise<passwordDocument> {
     try {
       this.logger.debug({
-        message: "Entering setPassword",
-        newUserDto: userId,
+        message: "Entering getPasswordByUserId",
+        user_id: userId,
       });
 
-      // TODO: hash password
-      const newPassword = new this.passwordModel({
+      const passwordByUserIdSelector = {
+        user_id: true,
+        password: true,
+      };
+      const password: passwordDocument = await this.passwordModel
+        .findOne({ user_id: userId })
+        .sort({ _id: -1 })
+        .select(passwordByUserIdSelector);
+
+      if (!password) {
+        this.logger.warn({
+          message: "Password not found",
+          user_id: userId,
+        });
+        return null;
+      }
+
+      this.logger.log({
+        message: "Password found",
+        password_id: password._id,
         user_id: userId,
-        portal: portal,
+      });
+
+      return password;
+    } catch (error) {
+      this.logger.error({
+        message: "Error getting password by user id",
+        user_id: userId,
+        error: error,
+      });
+    }
+  }
+
+  async setPasswordByUserId(userId: string, password: string): Promise<string> {
+    try {
+      this.logger.debug({
+        message: "Entering setPasswordByUserId",
+        user_id: userId,
+      });
+
+      const newPassword: passwordDocument = await this.passwordModel.create({
+        user_id: userId,
         password: password,
       });
-      await newPassword.save();
 
       this.logger.log({
         message: "Password set successfully",
-        passwordId: newPassword._id,
+        password_id: newPassword._id,
       });
 
       return newPassword._id;
     } catch (error) {
       this.logger.error({
         message: "Error setting password",
-        newUserId: userId,
-        error: error,
-      });
-    }
-  }
-
-  async getPasswordId(userId: string, portal: string): Promise<string> {
-    try {
-      this.logger.debug({
-        message: "Entering getPassword",
         user_id: userId,
-        portal: portal,
-      });
-
-      const password: passwordDocument = await this.passwordModel
-        .findOne({
-          user_id: userId,
-          portal: portal,
-        })
-        .sort({ _id: -1 })
-        .select({ _id: true });
-
-      if (!password) {
-        this.logger.warn({
-          message: "Password not found",
-          user_id: userId,
-          portal: portal,
-        });
-        return null;
-      }
-
-      this.logger.log({
-        message: "Password get successfully",
-        passwordId: password._id,
-      });
-
-      return password._id;
-    } catch (error) {
-      this.logger.error({
-        message: "Error getting password",
-        user_id: userId,
-        error: error,
-      });
-    }
-  }
-
-  async comparePasswords(
-    passwordId: string,
-    password: string
-  ): Promise<boolean> {
-    try {
-      this.logger.debug({
-        message: "Entering comparePasswords",
-        password_id: passwordId,
-      });
-
-      const userPassword: passwordDocument = await this.passwordModel
-        .findById(passwordId)
-        .select({ password: true });
-
-      if (!userPassword) {
-        this.logger.warn({
-          message: "User password not found",
-          password_id: passwordId,
-        });
-        return false;
-      }
-
-      this.logger.log({
-        message: "User password found",
-        passwordId: userPassword._id,
-      });
-
-      // TODO: hashed password
-      return userPassword.password === password;
-    } catch (error) {
-      this.logger.error({
-        message: "Error comparing user passwords",
-        password_id: passwordId,
         error: error,
       });
     }

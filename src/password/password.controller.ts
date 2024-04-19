@@ -1,15 +1,18 @@
 import {
   Body,
   Controller,
+  Get,
   Inject,
   Logger,
+  Param,
   Post,
   forwardRef,
 } from "@nestjs/common";
 
+import { passwordDocument } from "@/schemas";
 import { UserService } from "@/user/user.service";
+import { SetPasswordDTO, ValidateMongoId } from "@/dtos";
 import { PasswordService } from "@/password/password.service";
-import { AddPasswordDTO } from "@/dtos/password.dto";
 
 @Controller("passwords")
 export class PasswordController {
@@ -25,39 +28,50 @@ export class PasswordController {
     });
   }
 
-  /**
-   * steps:
-   * 1. DTO will validate data
-   * 2. Add new user password
-   * 3. Return password id
-   * @param passwordDto
-   * @returns
-   */
-  @Post("set")
-  async set(@Body() passwordDto: AddPasswordDTO): Promise<{
-    password_id: string;
-  }> {
+  @Get(":userId")
+  async getPassword(
+    @Param("userId", ValidateMongoId) userId: string
+  ): Promise<passwordDocument> {
     try {
       this.logger.debug({
-        message: "Entering set password",
+        message: "Entering getPassword",
+        user_id: userId,
+      });
+
+      const password: passwordDocument =
+        await this.passwordService.getPasswordByUserId(userId);
+
+      return password;
+    } catch (error) {
+      this.logger.error({
+        message: "Error getting password",
+        user_id: userId,
+        error: error,
+      });
+    }
+  }
+
+  @Post()
+  async setPassword(@Body() passwordDto: SetPasswordDTO): Promise<string> {
+    try {
+      this.logger.debug({
+        message: "Entering setPassword",
         user: passwordDto,
       });
 
-      // Add new user password
-      const newPasswordId: string = await this.passwordService.setPassword(
-        passwordDto.userId,
-        passwordDto.portal,
-        passwordDto.password
-      );
+      // Add new password
+      const newPasswordId: string =
+        await this.passwordService.setPasswordByUserId(
+          passwordDto.userId,
+          passwordDto.password
+        );
 
-      // Send added password id
-      return {
-        password_id: newPasswordId,
-      };
+      // Send created password id
+      return newPasswordId;
     } catch (error) {
       this.logger.error({
-        message: "Error setting new password",
-        portal: passwordDto.portal,
+        message: "Error setting password",
+        user_id: passwordDto.userId,
         error: error,
       });
     }

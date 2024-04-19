@@ -1,15 +1,18 @@
 import {
   Body,
   Controller,
+  Get,
   Inject,
   Logger,
+  Param,
   Post,
   forwardRef,
 } from "@nestjs/common";
 
-import { LoginUserDTO, RegisterUserDTO } from "@/dtos/user.dto";
+import { userDocument } from "@/schemas";
 import { UserService } from "@/user/user.service";
 import { PasswordService } from "@/password/password.service";
+import { GetUserDTO, SetUserDTO, ValidateMongoId } from "@/dtos";
 
 @Controller("users")
 export class UserController {
@@ -24,111 +27,71 @@ export class UserController {
     });
   }
 
-  /**
-   * steps:
-   * 1. DTO will validate data
-   * 2. Create new user
-   * 3. Create new user password
-   * 4. Return user id
-   * @param newUserDto
-   * @returns
-   */
-  @Post("register")
-  async register(@Body() newUserDto: RegisterUserDTO): Promise<{
-    user_id: string;
-  }> {
+  @Get(":userId")
+  async getUserById(
+    @Param("userId", ValidateMongoId) userId: string
+  ): Promise<userDocument> {
     try {
       this.logger.debug({
-        message: "Entering register",
-        user: newUserDto,
+        message: "Entering getUserById",
+        user_id: userId,
       });
 
-      // Create new user
-      const newUserId: string = await this.userService.createNewUser(
-        newUserDto.email,
-        newUserDto.portal
-      );
+      const user: userDocument = await this.userService.getUserById(userId);
 
-      // Create new user password
-      const newPasswordId: string = await this.passwordService.setPassword(
-        newUserId,
-        newUserDto.portal,
-        newUserDto.password
-      );
-
-      this.logger.log({
-        message: "New user created",
-        user_id: newUserId,
-        password_id: newPasswordId,
-      });
-
-      // Send new user id
-      return {
-        user_id: newUserId,
-      };
+      return user;
     } catch (error) {
       this.logger.error({
-        message: "Error registering new user",
-        portal: newUserDto.portal,
+        message: "Error getting user by id",
+        user_id: userId,
         error: error,
       });
     }
   }
 
-  /**
-   * steps:
-   * 1. DTO will validate data
-   * 2. Get user id
-   * 3. Get user password id
-   * 4. Check if user password is correct
-   * 5. Return user id
-   * @param userDto
-   * @returns
-   */
-  @Post("login")
-  async login(@Body() userDto: LoginUserDTO): Promise<{
-    user_id: string;
-  }> {
+  @Post("get")
+  async getUser(@Body() userDto: GetUserDTO): Promise<userDocument> {
     try {
       this.logger.debug({
-        message: "Entering login",
-        user: userDto,
+        message: "Entering getUser",
+        email: userDto.email,
       });
 
-      // Get user id
-      const userId: string = await this.userService.getUserId(
+      const user: userDocument = await this.userService.getUser(
         userDto.email,
         userDto.portal
       );
 
-      // Get user password id
-      const userPasswordId: string = await this.passwordService.getPasswordId(
-        userId,
+      return user;
+    } catch (error) {
+      this.logger.error({
+        message: "Error getting user",
+        email: userDto.email,
+        error: error,
+      });
+    }
+  }
+
+  @Post()
+  async setUser(@Body() userDto: SetUserDTO): Promise<string> {
+    try {
+      this.logger.debug({
+        message: "Entering setUser",
+        dto: userDto,
+      });
+
+      // Add new user
+      const newUserId: string = await this.userService.setUser(
+        userDto.email,
         userDto.portal
       );
 
-      // Check if user password is correct
-      const isPasswordCorrect: boolean =
-        await this.passwordService.comparePasswords(
-          userPasswordId,
-          userDto.password
-        );
-
-      this.logger.log({
-        message: `User login result: ${isPasswordCorrect}`,
-        user_id: userId,
-        password_id: userPasswordId,
-        password_result: isPasswordCorrect,
-      });
-
-      // Send user id
-      return {
-        user_id: isPasswordCorrect ? userId : null,
-      };
+      // Send created user id
+      return newUserId;
     } catch (error) {
       this.logger.error({
-        message: "Error logging in user",
-        portal: userDto.portal,
+        message: "Error setting user",
+        email: userDto.email,
         error: error,
       });
     }

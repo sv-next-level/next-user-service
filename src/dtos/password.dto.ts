@@ -1,21 +1,8 @@
-import {
-  IsEnum,
-  IsMongoId,
-  IsNotEmpty,
-  IsString,
-  Length,
-} from "class-validator";
+import { IsMongoId, IsNotEmpty, IsString, Length } from "class-validator";
 
-import { PORTAL } from "@/constants";
-
-export class AddPasswordDTO {
+export class SetPasswordDTO {
   @IsMongoId()
   readonly userId: string;
-
-  @IsNotEmpty()
-  @IsString()
-  @IsEnum(PORTAL, { message: "Invalid portal type!" })
-  readonly portal: PORTAL;
 
   @IsString()
   @IsNotEmpty()

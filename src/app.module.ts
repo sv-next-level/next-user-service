@@ -4,8 +4,7 @@ import { ConfigModule } from "@nestjs/config";
 import { AppService } from "@/app.service";
 import { UserModule } from "@/user/user.module";
 import { AppController } from "@/app.controller";
-import configuration from "@/config/configuration";
-import { validate } from "@/config/env.validation";
+import configuration, { validate } from "@/config";
 import { PasswordModule } from "@/password/password.module";
 import { DatabaseModule } from "@/infra/mongoose/database.module";
 
@@ -18,9 +17,9 @@ import { DatabaseModule } from "@/infra/mongoose/database.module";
       cache: true,
       validate,
     }),
-    DatabaseModule,
     UserModule,
     PasswordModule,
+    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

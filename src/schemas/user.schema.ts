@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
-import { PORTAL } from "@/constants";
+import { PORTAL, USER_STATUS } from "@/constants";
 
 @Schema({
   timestamps: true,
@@ -11,6 +11,13 @@ export class User {
 
   @Prop({ type: [String], enum: PORTAL, required: true })
   portal: PORTAL[];
+
+  @Prop({
+    type: String,
+    enum: USER_STATUS,
+    default: USER_STATUS.ACTIVE,
+  })
+  status: USER_STATUS;
 }
 
 export const userSchema = SchemaFactory.createForClass(User);

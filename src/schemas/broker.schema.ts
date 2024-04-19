@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
-import { USER_MODEL, User } from "@/schemas/user.schema";
+import { USER_MODEL, User } from "@/schemas";
 import { PORTAL, BROKER_STATUS, BROKER } from "@/constants";
 
 @Schema({
