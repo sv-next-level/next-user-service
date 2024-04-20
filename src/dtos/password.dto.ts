@@ -1,6 +1,6 @@
 import { IsMongoId, IsNotEmpty, IsString, Length } from "class-validator";
 
-export class SetPasswordDTO {
+export class PasswordDTO {
   @IsMongoId()
   readonly userId: string;
 

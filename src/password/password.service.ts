@@ -1,6 +1,11 @@
 import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
-import { Injectable, Logger } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
 
 import { DATABASE_CONNECTION_NAME } from "@/constants";
 import { PASSWORD_MODEL, passwordDocument } from "@/schemas";
@@ -28,6 +33,10 @@ export class PasswordService {
       const password: passwordDocument = await this.passwordModel
         .findOne({ user_id: userId })
         .sort({ _id: -1 });
+
+      if (!password) {
+        throw new NotFoundException("Password not found").getResponse();
+      }
 
       this.logger.log({
         message: "Password found",
@@ -57,6 +66,12 @@ export class PasswordService {
         user_id: userId,
         password: password,
       });
+
+      if (!newPassword) {
+        throw new InternalServerErrorException(
+          "Failed set new password"
+        ).getResponse();
+      }
 
       this.logger.log({
         message: "Password set successfully",

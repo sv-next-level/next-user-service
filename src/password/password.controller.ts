@@ -11,7 +11,7 @@ import {
 
 import { passwordDocument } from "@/schemas";
 import { UserService } from "@/user/user.service";
-import { SetPasswordDTO, ValidateMongoId } from "@/dtos";
+import { PasswordDTO, ValidateMongoId } from "@/dtos";
 import { PasswordService } from "@/password/password.service";
 
 @Controller("passwords")
@@ -41,19 +41,24 @@ export class PasswordController {
       const password: passwordDocument =
         await this.passwordService.getPasswordByUserId(userId);
 
+      this.logger.log({
+        message: "Password retrieved",
+        password_id: password._id,
+      });
+
       return password;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error({
         message: "Error getting password",
         user_id: userId,
         error: error,
       });
-      throw error;
+      return error;
     }
   }
 
-  @Post()
-  async setPassword(@Body() passwordDto: SetPasswordDTO): Promise<string> {
+  @Post("set")
+  async setPassword(@Body() passwordDto: PasswordDTO): Promise<string> {
     try {
       this.logger.debug({
         message: "Entering setPassword",
@@ -66,14 +71,50 @@ export class PasswordController {
           passwordDto.password
         );
 
+      this.logger.log({
+        message: "Password added",
+        password_id: newPasswordId,
+      });
+
       return newPasswordId;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error({
         message: "Error setting password",
         user_id: passwordDto.userId,
         error: error,
       });
-      throw error;
+      return error;
+    }
+  }
+
+  @Post("validate")
+  async validatePassword(@Body() passwordDto: PasswordDTO): Promise<boolean> {
+    try {
+      this.logger.debug({
+        message: "Entering validatePassword",
+        user: passwordDto,
+      });
+
+      const password: passwordDocument =
+        await this.passwordService.getPasswordByUserId(passwordDto.userId);
+
+      const isValid: boolean = await password.isValidPassword(
+        passwordDto.password
+      );
+
+      this.logger.log({
+        message: "Password validation",
+        result: isValid,
+      });
+
+      return isValid;
+    } catch (error: any) {
+      this.logger.error({
+        message: "Error validating password",
+        user_id: passwordDto.userId,
+        error: error,
+      });
+      return error;
     }
   }
 }

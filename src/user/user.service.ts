@@ -1,6 +1,12 @@
 import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
-import { Injectable, Logger } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from "@nestjs/common";
 
 import { USER_MODEL, userDocument } from "@/schemas";
 import { DATABASE_CONNECTION_NAME } from "@/constants";
@@ -26,6 +32,10 @@ export class UserService {
       });
 
       const user: userDocument = await this.userModel.findById(userId);
+
+      if (!user) {
+        throw new NotFoundException("User not found").getResponse();
+      }
 
       this.logger.log({
         message: "User found",
@@ -55,6 +65,10 @@ export class UserService {
         portal: portal,
       });
 
+      if (!user) {
+        throw new NotFoundException("User not found").getResponse();
+      }
+
       this.logger.log({
         message: "User found",
         user_id: user._id,
@@ -78,10 +92,25 @@ export class UserService {
         newUserDto: email,
       });
 
+      const user: userDocument = await this.userModel.findOne({
+        email: email,
+        portal: portal,
+      });
+
+      if (user) {
+        throw new ForbiddenException("User already exists").getResponse();
+      }
+
       const newUser: userDocument = await this.userModel.create({
         email: email,
         portal: [portal],
       });
+
+      if (!newUser) {
+        throw new InternalServerErrorException(
+          "Failed to create new user"
+        ).getResponse();
+      }
 
       this.logger.log({
         message: "user created",

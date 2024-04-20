@@ -12,7 +12,7 @@ import {
 import { userDocument } from "@/schemas";
 import { UserService } from "@/user/user.service";
 import { PasswordService } from "@/password/password.service";
-import { GetUserDTO, SetUserDTO, ValidateMongoId } from "@/dtos";
+import { UserDTO, ValidateMongoId } from "@/dtos";
 
 @Controller("users")
 export class UserController {
@@ -40,18 +40,18 @@ export class UserController {
       const user: userDocument = await this.userService.getUserById(userId);
 
       return user;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error({
         message: "Error getting user by id",
         user_id: userId,
         error: error,
       });
-      throw error;
+      return error;
     }
   }
 
   @Post("get")
-  async getUser(@Body() userDto: GetUserDTO): Promise<userDocument> {
+  async getUser(@Body() userDto: UserDTO): Promise<userDocument> {
     try {
       this.logger.debug({
         message: "Entering getUser",
@@ -64,18 +64,18 @@ export class UserController {
       );
 
       return user;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error({
         message: "Error getting user",
         email: userDto.email,
         error: error,
       });
-      throw error;
+      return error;
     }
   }
 
   @Post()
-  async setUser(@Body() userDto: SetUserDTO): Promise<string> {
+  async setUser(@Body() userDto: UserDTO): Promise<string> {
     try {
       this.logger.debug({
         message: "Entering setUser",
@@ -88,13 +88,13 @@ export class UserController {
       );
 
       return newUserId;
-    } catch (error) {
+    } catch (error: any) {
       this.logger.error({
         message: "Error setting user",
         email: userDto.email,
         error: error,
       });
-      throw error;
+      return error;
     }
   }
 }
