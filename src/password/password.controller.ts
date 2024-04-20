@@ -48,6 +48,7 @@ export class PasswordController {
         user_id: userId,
         error: error,
       });
+      throw error;
     }
   }
 
@@ -59,14 +60,12 @@ export class PasswordController {
         user: passwordDto,
       });
 
-      // Add new password
       const newPasswordId: string =
         await this.passwordService.setPasswordByUserId(
           passwordDto.userId,
           passwordDto.password
         );
 
-      // Send created password id
       return newPasswordId;
     } catch (error) {
       this.logger.error({
@@ -74,6 +73,7 @@ export class PasswordController {
         user_id: passwordDto.userId,
         error: error,
       });
+      throw error;
     }
   }
 }

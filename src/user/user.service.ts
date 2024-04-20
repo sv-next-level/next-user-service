@@ -25,22 +25,7 @@ export class UserService {
         user_id: userId,
       });
 
-      const userByIdSelector = {
-        email: true,
-        portal: true,
-        status: true,
-      };
-      const user: userDocument = await this.userModel
-        .findById(userId)
-        .select(userByIdSelector);
-
-      if (!user) {
-        this.logger.warn({
-          message: "User not found",
-          id: userId,
-        });
-        return null;
-      }
+      const user: userDocument = await this.userModel.findById(userId);
 
       this.logger.log({
         message: "User found",
@@ -54,6 +39,7 @@ export class UserService {
         user_id: userId,
         error: error,
       });
+      throw error;
     }
   }
 
@@ -64,21 +50,10 @@ export class UserService {
         newUserDto: email,
       });
 
-      const user: userDocument = await this.userModel
-        .findOne({
-          email: email,
-          portal: portal,
-        })
-        .select({ _id: true });
-
-      if (!user) {
-        this.logger.warn({
-          message: "User not found",
-          portal: portal,
-          email: email,
-        });
-        return null;
-      }
+      const user: userDocument = await this.userModel.findOne({
+        email: email,
+        portal: portal,
+      });
 
       this.logger.log({
         message: "User found",
@@ -92,6 +67,7 @@ export class UserService {
         portal: portal,
         error: error,
       });
+      throw error;
     }
   }
 
@@ -119,6 +95,7 @@ export class UserService {
         portal: portal,
         error: error,
       });
+      throw error;
     }
   }
 }

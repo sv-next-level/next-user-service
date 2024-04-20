@@ -46,6 +46,7 @@ export class UserController {
         user_id: userId,
         error: error,
       });
+      throw error;
     }
   }
 
@@ -69,6 +70,7 @@ export class UserController {
         email: userDto.email,
         error: error,
       });
+      throw error;
     }
   }
 
@@ -80,13 +82,11 @@ export class UserController {
         dto: userDto,
       });
 
-      // Add new user
       const newUserId: string = await this.userService.setUser(
         userDto.email,
         userDto.portal
       );
 
-      // Send created user id
       return newUserId;
     } catch (error) {
       this.logger.error({
@@ -94,6 +94,7 @@ export class UserController {
         email: userDto.email,
         error: error,
       });
+      throw error;
     }
   }
 }

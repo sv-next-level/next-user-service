@@ -25,22 +25,9 @@ export class PasswordService {
         user_id: userId,
       });
 
-      const passwordByUserIdSelector = {
-        user_id: true,
-        password: true,
-      };
       const password: passwordDocument = await this.passwordModel
         .findOne({ user_id: userId })
-        .sort({ _id: -1 })
-        .select(passwordByUserIdSelector);
-
-      if (!password) {
-        this.logger.warn({
-          message: "Password not found",
-          user_id: userId,
-        });
-        return null;
-      }
+        .sort({ _id: -1 });
 
       this.logger.log({
         message: "Password found",
@@ -55,6 +42,7 @@ export class PasswordService {
         user_id: userId,
         error: error,
       });
+      throw error;
     }
   }
 
@@ -82,6 +70,7 @@ export class PasswordService {
         user_id: userId,
         error: error,
       });
+      throw error;
     }
   }
 }
