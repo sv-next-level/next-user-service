@@ -2,14 +2,17 @@ import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import {
   ForbiddenException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  forwardRef,
 } from "@nestjs/common";
 
 import { USER_MODEL, userDocument } from "@/schemas";
 import { DATABASE_CONNECTION_NAME } from "@/constants";
+import { PasswordService } from "@/password/password.service";
 
 @Injectable()
 export class UserService {
@@ -17,7 +20,9 @@ export class UserService {
 
   constructor(
     @InjectModel(USER_MODEL, DATABASE_CONNECTION_NAME.USER_DB)
-    private readonly userModel: Model<userDocument>
+    private readonly userModel: Model<userDocument>,
+    @Inject(forwardRef(() => PasswordService))
+    private readonly passwordService: PasswordService
   ) {
     this.logger.debug({
       message: "Entering constructor of user service",
@@ -53,10 +58,10 @@ export class UserService {
     }
   }
 
-  async getUser(email: string, portal: string): Promise<userDocument> {
+  async getUserId(email: string, portal: string): Promise<string> {
     try {
       this.logger.debug({
-        message: "Entering getUser",
+        message: "Entering getUserId",
         newUserDto: email,
       });
 
@@ -74,7 +79,7 @@ export class UserService {
         user_id: user._id,
       });
 
-      return user;
+      return user._id;
     } catch (error) {
       this.logger.error({
         message: "Error getting user id",

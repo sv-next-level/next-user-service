@@ -1,14 +1,17 @@
 import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import {
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  forwardRef,
 } from "@nestjs/common";
 
 import { DATABASE_CONNECTION_NAME } from "@/constants";
 import { PASSWORD_MODEL, passwordDocument } from "@/schemas";
+import { UserService } from "@/user/user.service";
 
 @Injectable()
 export class PasswordService {
@@ -16,7 +19,9 @@ export class PasswordService {
 
   constructor(
     @InjectModel(PASSWORD_MODEL, DATABASE_CONNECTION_NAME.USER_DB)
-    private readonly passwordModel: Model<passwordDocument>
+    private readonly passwordModel: Model<passwordDocument>,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService
   ) {
     this.logger.debug({
       message: "Entering constructor of password service",

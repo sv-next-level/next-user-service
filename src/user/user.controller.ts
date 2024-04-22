@@ -51,14 +51,14 @@ export class UserController {
   }
 
   @Post("get")
-  async getUser(@Body() userDto: UserDTO): Promise<userDocument> {
+  async getUserId(@Body() userDto: UserDTO): Promise<string> {
     try {
       this.logger.debug({
-        message: "Entering getUser",
+        message: "Entering getUserId",
         email: userDto.email,
       });
 
-      const user: userDocument = await this.userService.getUser(
+      const user: string = await this.userService.getUserId(
         userDto.email,
         userDto.portal
       );
@@ -66,7 +66,7 @@ export class UserController {
       return user;
     } catch (error: any) {
       this.logger.error({
-        message: "Error getting user",
+        message: "Error getting user id",
         email: userDto.email,
         error: error,
       });
@@ -74,7 +74,7 @@ export class UserController {
     }
   }
 
-  @Post()
+  @Post("set")
   async setUser(@Body() userDto: UserDTO): Promise<string> {
     try {
       this.logger.debug({

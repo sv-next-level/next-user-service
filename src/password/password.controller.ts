@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Inject,
+  InternalServerErrorException,
   Logger,
   Param,
   Post,
@@ -19,9 +20,9 @@ export class PasswordController {
   private logger: Logger = new Logger("password.controller");
 
   constructor(
+    private readonly passwordService: PasswordService,
     @Inject(forwardRef(() => UserService))
-    private readonly userService: UserService,
-    private readonly passwordService: PasswordService
+    private readonly userService: UserService
   ) {
     this.logger.debug({
       message: "Entering constructor of password controller",
@@ -101,6 +102,16 @@ export class PasswordController {
       const isValid: boolean = await password.isValidPassword(
         passwordDto.password
       );
+
+      if (typeof isValid !== Boolean.name.toLowerCase()) {
+        this.logger.warn({
+          message: "Failed to get velidate password",
+          user_id: passwordDto.userId,
+        });
+        throw new InternalServerErrorException(
+          "Failed to velidate user password"
+        ).getResponse();
+      }
 
       this.logger.log({
         message: "Password validation",
