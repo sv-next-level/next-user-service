@@ -1,17 +1,14 @@
-import { Model } from "mongoose";
-import { InjectModel } from "@nestjs/mongoose";
 import {
-  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
-  forwardRef,
 } from "@nestjs/common";
+import { Model } from "mongoose";
+import { InjectModel } from "@nestjs/mongoose";
 
 import { DATABASE_CONNECTION_NAME } from "@/constants";
 import { PASSWORD_MODEL, passwordDocument } from "@/schemas";
-import { UserService } from "@/user/user.service";
 
 @Injectable()
 export class PasswordService {
@@ -19,9 +16,7 @@ export class PasswordService {
 
   constructor(
     @InjectModel(PASSWORD_MODEL, DATABASE_CONNECTION_NAME.USER_DB)
-    private readonly passwordModel: Model<passwordDocument>,
-    @Inject(forwardRef(() => UserService))
-    private readonly userService: UserService
+    private readonly passwordModel: Model<passwordDocument>
   ) {
     this.logger.debug({
       message: "Entering constructor of password service",
@@ -60,10 +55,13 @@ export class PasswordService {
     }
   }
 
-  async setPasswordByUserId(userId: string, password: string): Promise<string> {
+  async createPasswordByUserId(
+    userId: string,
+    password: string
+  ): Promise<string> {
     try {
       this.logger.debug({
-        message: "Entering setPasswordByUserId",
+        message: "Entering createPasswordByUserId",
         user_id: userId,
       });
 
@@ -74,19 +72,19 @@ export class PasswordService {
 
       if (!newPassword) {
         throw new InternalServerErrorException(
-          "Failed set new password"
+          "Failed create new password"
         ).getResponse();
       }
 
       this.logger.log({
-        message: "Password set successfully",
+        message: "Password created successfully",
         password_id: newPassword._id,
       });
 
       return newPassword._id;
     } catch (error) {
       this.logger.error({
-        message: "Error setting password",
+        message: "Error creating password",
         user_id: userId,
         error: error,
       });

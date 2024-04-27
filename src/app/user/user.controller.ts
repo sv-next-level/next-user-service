@@ -1,27 +1,14 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Logger,
-  Param,
-  Post,
-  forwardRef,
-} from "@nestjs/common";
+import { Body, Controller, Get, Logger, Param, Post } from "@nestjs/common";
 
+import { UserService } from ".";
 import { userDocument } from "@/schemas";
-import { UserService } from "@/user/user.service";
-import { PasswordService } from "@/password/password.service";
 import { UserDTO, ValidateMongoId } from "@/dtos";
+import { Created, IApiResponse, InternalServerError, OK } from "@/utils";
 
 @Controller("users")
 export class UserController {
   private logger: Logger = new Logger("user.controller");
-  constructor(
-    private readonly userService: UserService,
-    @Inject(forwardRef(() => PasswordService))
-    private readonly passwordService: PasswordService
-  ) {
+  constructor(private readonly userService: UserService) {
     this.logger.debug({
       message: "Entering constructor of user controller",
     });
@@ -30,7 +17,7 @@ export class UserController {
   @Get(":userId")
   async getUserById(
     @Param("userId", ValidateMongoId) userId: string
-  ): Promise<userDocument> {
+  ): Promise<IApiResponse> {
     try {
       this.logger.debug({
         message: "Entering getUserById",
@@ -39,43 +26,55 @@ export class UserController {
 
       const user: userDocument = await this.userService.getUserById(userId);
 
-      return user;
+      const data = {
+        message: "User found",
+        user: user,
+      };
+
+      return OK(data);
     } catch (error: any) {
       this.logger.error({
         message: "Error getting user by id",
         user_id: userId,
         error: error,
       });
-      return error;
+
+      return InternalServerError(error);
     }
   }
 
   @Post("get")
-  async getUserId(@Body() userDto: UserDTO): Promise<string> {
+  async getUserId(@Body() userDto: UserDTO): Promise<IApiResponse> {
     try {
       this.logger.debug({
         message: "Entering getUserId",
         email: userDto.email,
       });
 
-      const user: string = await this.userService.getUserId(
+      const userId: string = await this.userService.getUserId(
         userDto.email,
         userDto.portal
       );
 
-      return user;
+      const data = {
+        message: "User found",
+        user_id: userId,
+      };
+
+      return OK(data);
     } catch (error: any) {
       this.logger.error({
         message: "Error getting user id",
         email: userDto.email,
         error: error,
       });
-      return error;
+
+      return InternalServerError(error);
     }
   }
 
   @Post("set")
-  async setUser(@Body() userDto: UserDTO): Promise<string> {
+  async setUser(@Body() userDto: UserDTO): Promise<IApiResponse> {
     try {
       this.logger.debug({
         message: "Entering setUser",
@@ -87,14 +86,20 @@ export class UserController {
         userDto.portal
       );
 
-      return newUserId;
+      const data = {
+        message: "User created",
+        user_id: newUserId,
+      };
+
+      return Created(data);
     } catch (error: any) {
       this.logger.error({
         message: "Error setting user",
         email: userDto.email,
         error: error,
       });
-      return error;
+
+      return InternalServerError(error);
     }
   }
 }

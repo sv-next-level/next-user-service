@@ -2,28 +2,22 @@ import {
   Body,
   Controller,
   Get,
-  Inject,
   InternalServerErrorException,
   Logger,
   Param,
   Post,
-  forwardRef,
 } from "@nestjs/common";
 
+import { PasswordService } from ".";
 import { passwordDocument } from "@/schemas";
-import { UserService } from "@/user/user.service";
 import { PasswordDTO, ValidateMongoId } from "@/dtos";
-import { PasswordService } from "@/password/password.service";
+import { Created, IApiResponse, InternalServerError, OK } from "@/utils";
 
 @Controller("passwords")
 export class PasswordController {
   private logger: Logger = new Logger("password.controller");
 
-  constructor(
-    private readonly passwordService: PasswordService,
-    @Inject(forwardRef(() => UserService))
-    private readonly userService: UserService
-  ) {
+  constructor(private readonly passwordService: PasswordService) {
     this.logger.debug({
       message: "Entering constructor of password controller",
     });
@@ -32,7 +26,7 @@ export class PasswordController {
   @Get(":userId")
   async getPassword(
     @Param("userId", ValidateMongoId) userId: string
-  ): Promise<passwordDocument> {
+  ): Promise<IApiResponse> {
     try {
       this.logger.debug({
         message: "Entering getPassword",
@@ -47,49 +41,65 @@ export class PasswordController {
         password_id: password._id,
       });
 
-      return password;
+      const data = {
+        message: "Password retrieved",
+        password_id: password._id,
+      };
+
+      return OK(data);
     } catch (error: any) {
       this.logger.error({
         message: "Error getting password",
         user_id: userId,
         error: error,
       });
-      return error;
+
+      return InternalServerError(error);
     }
   }
 
-  @Post("set")
-  async setPassword(@Body() passwordDto: PasswordDTO): Promise<string> {
+  @Post("create")
+  async createPassword(
+    @Body() passwordDto: PasswordDTO
+  ): Promise<IApiResponse> {
     try {
       this.logger.debug({
-        message: "Entering setPassword",
+        message: "Entering createPassword",
         user: passwordDto,
       });
 
       const newPasswordId: string =
-        await this.passwordService.setPasswordByUserId(
+        await this.passwordService.createPasswordByUserId(
           passwordDto.userId,
           passwordDto.password
         );
 
       this.logger.log({
-        message: "Password added",
+        message: "Password created",
         password_id: newPasswordId,
       });
 
-      return newPasswordId;
+      const data = {
+        message: "Password created",
+        password_id: newPasswordId,
+      };
+
+      return Created(data);
     } catch (error: any) {
       this.logger.error({
-        message: "Error setting password",
+        message: "Error creating password",
         user_id: passwordDto.userId,
         error: error,
       });
-      return error;
+
+      return InternalServerError(error);
     }
   }
 
   @Post("validate")
-  async validatePassword(@Body() passwordDto: PasswordDTO): Promise<boolean> {
+  async validatePassword(
+    @Body() passwordDto: PasswordDTO
+  ): Promise<IApiResponse> {
     try {
       this.logger.debug({
         message: "Entering validatePassword",
@@ -118,14 +128,20 @@ export class PasswordController {
         result: isValid,
       });
 
-      return isValid;
+      const data = {
+        message: "Password validation",
+        result: isValid,
+      };
+
+      return OK(data);
     } catch (error: any) {
       this.logger.error({
         message: "Error validating password",
         user_id: passwordDto.userId,
         error: error,
       });
-      return error;
+
+      return InternalServerError(error);
     }
   }
 }

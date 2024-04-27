@@ -6,4 +6,4 @@ services:
     image: user-service-dev:1.0.0
     build: .
     ports:
-      - 8002:8002
+      - 8001:8001

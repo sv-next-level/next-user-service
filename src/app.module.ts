@@ -2,10 +2,10 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
 import { AppService } from "@/app.service";
-import { UserModule } from "@/user/user.module";
 import { AppController } from "@/app.controller";
 import configuration, { validate } from "@/config";
-import { PasswordModule } from "@/password/password.module";
+import { UserModule } from "@/app/user/user.module";
+import { PasswordModule } from "@/app/password/password.module";
 import { DatabaseModule } from "@/infra/mongoose/database.module";
 
 @Module({
