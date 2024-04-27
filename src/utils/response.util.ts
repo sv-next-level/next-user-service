@@ -36,6 +36,22 @@ export const Unauthorized = (error: unknown): IApiResponse => {
   };
 };
 
+export const Forbidden = (error: unknown): IApiResponse => {
+  return {
+    statusCode: 403,
+    error: error,
+    data: null,
+  };
+};
+
+export const NotFound = (error: unknown): IApiResponse => {
+  return {
+    statusCode: 404,
+    error: error,
+    data: null,
+  };
+};
+
 export const InternalServerError = (error: unknown): IApiResponse => {
   return {
     statusCode: 500,

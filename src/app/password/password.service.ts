@@ -1,13 +1,9 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from "@nestjs/common";
 import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
+import { Injectable, Logger } from "@nestjs/common";
 
 import { DATABASE_CONNECTION_NAME } from "@/constants";
+import { InternalServerError, NotFound } from "@/utils";
 import { PASSWORD_MODEL, passwordDocument } from "@/schemas";
 
 @Injectable()
@@ -35,7 +31,7 @@ export class PasswordService {
         .sort({ _id: -1 });
 
       if (!password) {
-        throw new NotFoundException("Password not found").getResponse();
+        throw NotFound("Password not found");
       }
 
       this.logger.log({
@@ -71,9 +67,7 @@ export class PasswordService {
       });
 
       if (!newPassword) {
-        throw new InternalServerErrorException(
-          "Failed create new password"
-        ).getResponse();
+        throw InternalServerError("Failed create new password");
       }
 
       this.logger.log({

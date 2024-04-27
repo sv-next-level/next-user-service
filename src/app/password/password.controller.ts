@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  InternalServerErrorException,
-  Logger,
-  Param,
-  Post,
-} from "@nestjs/common";
+import { Body, Controller, Get, Logger, Param, Post } from "@nestjs/common";
 
 import { PasswordService } from ".";
 import { passwordDocument } from "@/schemas";
@@ -118,9 +110,7 @@ export class PasswordController {
           message: "Failed to get velidate password",
           user_id: passwordDto.userId,
         });
-        throw new InternalServerErrorException(
-          "Failed to velidate user password"
-        ).getResponse();
+        throw InternalServerError("Failed to velidate user password");
       }
 
       this.logger.log({
