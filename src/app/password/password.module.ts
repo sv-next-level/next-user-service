@@ -1,15 +1,15 @@
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 
-import { DATABASE_CONNECTION_NAME } from "@/constants";
+import { MONGOOSE_DB_CONNECTION } from "@/db/connection";
 import { PasswordController, PasswordService } from ".";
-import { PASSWORD_MODEL, passwordSchema } from "@/schemas";
+import { PASSWORD_SCHEMA_NAME, PasswordSchema } from "@/db/mongo/model";
 
 @Module({
   imports: [
     MongooseModule.forFeature(
-      [{ name: PASSWORD_MODEL, schema: passwordSchema }],
-      DATABASE_CONNECTION_NAME.USER_DB
+      [{ name: PASSWORD_SCHEMA_NAME, schema: PasswordSchema }],
+      MONGOOSE_DB_CONNECTION.MAIN
     ),
   ],
   controllers: [PasswordController],

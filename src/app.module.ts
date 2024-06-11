@@ -2,16 +2,19 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
 import { AppService } from "@/app.service";
+import defaultConfiguration from "@/config";
 import { AppController } from "@/app.controller";
-import configuration, { validate } from "@/config";
 import { UserModule } from "@/app/user/user.module";
+import nestConfiguration, { validate } from "@/nestjs/config";
 import { PasswordModule } from "@/app/password/password.module";
-import { DatabaseModule } from "@/infra/mongoose/database.module";
+// import { RedisDatabaseModule } from "@/nestjs/db/redis/database.module";
+import { MongooseDatabaseModule } from "@/nestjs/db/mongo/database.module";
+import { MongooseModelsModule } from "@/nestjs/db/mongo/mongoose-models.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: configuration,
+      load: [...defaultConfiguration, ...nestConfiguration],
       expandVariables: true,
       isGlobal: true,
       cache: true,
@@ -19,7 +22,9 @@ import { DatabaseModule } from "@/infra/mongoose/database.module";
     }),
     UserModule,
     PasswordModule,
-    DatabaseModule,
+    // RedisDatabaseModule,
+    MongooseModelsModule,
+    MongooseDatabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Logger, Param, Post } from "@nestjs/common";
 
 import { UserService } from ".";
-import { userDocument } from "@/schemas";
+import { UserDocument } from "@/db/mongo/model";
 import { UserDTO, ValidateMongoId } from "@/dtos";
 import { Created, IApiResponse, InternalServerError, OK } from "@/utils";
 
@@ -24,7 +24,7 @@ export class UserController {
         user_id: userId,
       });
 
-      const user: userDocument = await this.userService.getUserById(userId);
+      const user: UserDocument = await this.userService.getUserById(userId);
 
       const data = {
         message: "User found",

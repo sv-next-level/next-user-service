@@ -1,3 +1,0 @@
-export enum DATABASE_CONNECTION_NAME {
-  USER_DB = "USER_DB",
-}

@@ -1,6 +1,6 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsString } from "class-validator";
 
-import { PORTAL } from "@/constants";
+import { PORTAL } from "@/common/server/portal";
 
 export class UserDTO {
   @IsEmail()

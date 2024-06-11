@@ -2,7 +2,7 @@ import { Types } from "mongoose";
 import { hash, genSalt, compare } from "bcrypt";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
-import { USER_MODEL, User } from "@/schemas";
+import { USER_SCHEMA_NAME, User } from "@/db/mongo/model";
 
 @Schema({
   timestamps: true,
@@ -23,7 +23,7 @@ import { USER_MODEL, User } from "@/schemas";
 export class Password {
   @Prop({
     type: Types.ObjectId,
-    ref: USER_MODEL,
+    ref: USER_SCHEMA_NAME,
     required: true,
   })
   user_id: Types.ObjectId | User;
@@ -34,13 +34,13 @@ export class Password {
   isValidPassword: (candidatePassword: string) => Promise<boolean>;
 }
 
-export const passwordSchema = SchemaFactory.createForClass(Password);
+export const PASSWORD_SCHEMA_NAME = Password.name;
 
-export type passwordDocument = Password & Document & { _id: string };
+export const PasswordSchema = SchemaFactory.createForClass(Password);
 
-export const PASSWORD_MODEL = Password.name;
+export type PasswordDocument = Password & Document & { _id: string };
 
-passwordSchema.pre("save", async function (next: () => void) {
+PasswordSchema.pre("save", async function (next: () => void) {
   const salt = await genSalt(10);
   const hashedPassword = await hash(this.password, salt);
   this.password = hashedPassword;

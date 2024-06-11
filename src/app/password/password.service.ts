@@ -2,31 +2,31 @@ import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { Injectable, Logger } from "@nestjs/common";
 
-import { DATABASE_CONNECTION_NAME } from "@/constants";
+import { MONGOOSE_DB_CONNECTION } from "@/db/connection";
 import { InternalServerError, NotFound } from "@/utils";
-import { PASSWORD_MODEL, passwordDocument } from "@/schemas";
+import { PASSWORD_SCHEMA_NAME, PasswordDocument } from "@/db/mongo/model";
 
 @Injectable()
 export class PasswordService {
   private logger: Logger = new Logger("password.service");
 
   constructor(
-    @InjectModel(PASSWORD_MODEL, DATABASE_CONNECTION_NAME.USER_DB)
-    private readonly passwordModel: Model<passwordDocument>
+    @InjectModel(PASSWORD_SCHEMA_NAME, MONGOOSE_DB_CONNECTION.MAIN)
+    private readonly passwordModel: Model<PasswordDocument>
   ) {
     this.logger.debug({
       message: "Entering constructor of password service",
     });
   }
 
-  async getPasswordByUserId(userId: string): Promise<passwordDocument> {
+  async getPasswordByUserId(userId: string): Promise<PasswordDocument> {
     try {
       this.logger.debug({
         message: "Entering getPasswordByUserId",
         user_id: userId,
       });
 
-      const password: passwordDocument = await this.passwordModel
+      const password: PasswordDocument = await this.passwordModel
         .findOne({ user_id: userId })
         .sort({ _id: -1 });
 
@@ -61,7 +61,7 @@ export class PasswordService {
         user_id: userId,
       });
 
-      const newPassword: passwordDocument = await this.passwordModel.create({
+      const newPassword: PasswordDocument = await this.passwordModel.create({
         user_id: userId,
         password: password,
       });

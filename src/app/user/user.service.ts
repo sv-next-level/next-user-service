@@ -2,8 +2,8 @@ import { Model } from "mongoose";
 import { InjectModel } from "@nestjs/mongoose";
 import { Injectable, Logger } from "@nestjs/common";
 
-import { USER_MODEL, userDocument } from "@/schemas";
-import { DATABASE_CONNECTION_NAME } from "@/constants";
+import { MONGOOSE_DB_CONNECTION } from "@/db/connection";
+import { USER_SCHEMA_NAME, UserDocument } from "@/db/mongo/model";
 import { Forbidden, InternalServerError, NotFound } from "@/utils";
 
 @Injectable()
@@ -11,22 +11,22 @@ export class UserService {
   private logger: Logger = new Logger("user.service");
 
   constructor(
-    @InjectModel(USER_MODEL, DATABASE_CONNECTION_NAME.USER_DB)
-    private readonly userModel: Model<userDocument>
+    @InjectModel(USER_SCHEMA_NAME, MONGOOSE_DB_CONNECTION.MAIN)
+    private readonly userModel: Model<UserDocument>
   ) {
     this.logger.debug({
       message: "Entering constructor of user service",
     });
   }
 
-  async getUserById(userId: string): Promise<userDocument> {
+  async getUserById(userId: string): Promise<UserDocument> {
     try {
       this.logger.debug({
         message: "Entering getUserById",
         user_id: userId,
       });
 
-      const user: userDocument = await this.userModel.findById(userId);
+      const user: UserDocument = await this.userModel.findById(userId);
 
       if (!user) {
         throw NotFound("User not found");
@@ -55,7 +55,7 @@ export class UserService {
         newUserDto: email,
       });
 
-      const user: userDocument = await this.userModel.findOne({
+      const user: UserDocument = await this.userModel.findOne({
         email: email,
         portal: portal,
       });
@@ -87,7 +87,7 @@ export class UserService {
         newUserDto: email,
       });
 
-      const user: userDocument = await this.userModel.findOne({
+      const user: UserDocument = await this.userModel.findOne({
         email: email,
         portal: portal,
       });
@@ -96,7 +96,7 @@ export class UserService {
         throw Forbidden("Email already exists");
       }
 
-      const newUser: userDocument = await this.userModel.create({
+      const newUser: UserDocument = await this.userModel.create({
         email: email,
         portal: [portal],
       });

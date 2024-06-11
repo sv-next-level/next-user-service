@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
-import { USER_MODEL, User } from "@/schemas";
-import { PORTAL, BROKER_STATUS, BROKER } from "@/constants";
+import { USER_SCHEMA_NAME, User } from "@/db/mongo/model";
+import { BROKER_STATUS, BROKER } from "@/constants";
+import { PORTAL } from "@/common/server/portal";
 
 @Schema({
   timestamps: true,
@@ -10,7 +11,7 @@ import { PORTAL, BROKER_STATUS, BROKER } from "@/constants";
 export class Broker {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
-    ref: USER_MODEL,
+    ref: USER_SCHEMA_NAME,
     required: true,
   })
   user_id: User;
@@ -33,8 +34,8 @@ export class Broker {
   portal: PORTAL;
 }
 
-export const brokerSchema = SchemaFactory.createForClass(Broker);
+export const BROKER_SCHEMA_NAME = Broker.name;
 
-export type brokerDocument = Broker & Document & { _id: string };
+export const BrokerSchema = SchemaFactory.createForClass(Broker);
 
-export const BROKER_MODEL = Broker.name;
+export type BrokerDocument = Broker & Document & { _id: string };

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Logger, Param, Post } from "@nestjs/common";
 
 import { PasswordService } from ".";
-import { passwordDocument } from "@/schemas";
+import { PasswordDocument } from "@/db/mongo/model";
 import { PasswordDTO, ValidateMongoId } from "@/dtos";
 import { Created, IApiResponse, InternalServerError, OK } from "@/utils";
 
@@ -25,7 +25,7 @@ export class PasswordController {
         user_id: userId,
       });
 
-      const password: passwordDocument =
+      const password: PasswordDocument =
         await this.passwordService.getPasswordByUserId(userId);
 
       this.logger.log({
@@ -98,7 +98,7 @@ export class PasswordController {
         user: passwordDto,
       });
 
-      const password: passwordDocument =
+      const password: PasswordDocument =
         await this.passwordService.getPasswordByUserId(passwordDto.userId);
 
       const isValid: boolean = await password.isValidPassword(
